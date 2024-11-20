@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jdenticon = require("jdenticon");
 const path = require("path");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 
 const UserController = {
   register: async (req, res) => {
@@ -37,7 +38,30 @@ const UserController = {
     }
   },
   login: async (req, res) => {
-    res.send("login");
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "all fields are required" });
+    }
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ error: "you entered an incorrect login or password" });
+      }
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
+        return res
+          .status(400)
+          .json({ error: "you entered an incorrect login or password" });
+      }
+      //We encrypt the user ID in the token //npm i dotenv for work process.env.SECRET_KEY
+      const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY);
+      res.json({ token });
+    } catch (error) {
+      console.error("login error", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   },
   getUserById: async (req, res) => {
     res.send("getUserById");
