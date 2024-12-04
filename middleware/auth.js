@@ -12,7 +12,7 @@ const authenticateToken = (req, res, next) => {
     }
 
     req.user = user;
-
+    // This allows control to be passed to the next handler
     next();
   });
 };
