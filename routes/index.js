@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer"); //install: npm i multer
 const { UserController } = require("../controllers");
+const PostController = require("../controllers/post-controller");
 const { authenticateToken } = require("../middleware/auth");
 
 const uploadDestination = "uploads";
